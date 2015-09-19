@@ -2,7 +2,7 @@
 
 A sessions middleware for [rkgo/web](https://github.com/rkgo/web)
 
-[![Build Status][drone]](https://ci.rkusa.st/github.com/rkgo/sessions)
+[![Build Status][drone]](https://ci.rkusa.st/rkgo/sessions)
 [![GoDoc][godoc]](https://godoc.org/github.com/rkgo/sessions)
 
 ### Example
@@ -21,5 +21,5 @@ sessions := sessions.FromContext(ctx)
 fmt.Println(sessions["foo"])
 ```
 
-[drone]: http://ci.rkusa.st/api/badge/github.com/rkgo/sessions/status.svg?branch=master&style=flat-square
+[drone]: http://ci.rkusa.st/api/badges/rkgo/sessions/status.svg?style=flat-square
 [godoc]: http://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square
