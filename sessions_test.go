@@ -6,14 +6,23 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rkgo/web"
+	"github.com/rkusa/web"
 )
 
-const testCookie = "testsid=MTQ0MjczNTc0MnxEdi1CQkFFQ180SUFBUkFCRUFBQUlQLUNBQUVHYzNSeWFXNW5EQVVBQTJadmJ3WnpkSEpwYm1jTUJRQURZbUZ5fD8SeqoIye4A9ZQPuT0MIe2SUV-UYT1li2Uj8SlRS9Ka; Path=/; Expires=Tue, 20 Oct 2015 07:55:42 GMT; Max-Age=2592000; HttpOnly"
+const sessionName = "testsid"
 
-func TestMiddleware(t *testing.T) {
+var keyPair = []byte("key")
+var testCookie string
+
+func TestEncode(t *testing.T) {
 	app := web.New()
-	app.Use(Middleware("testsid", NewCookieStore([]byte("key"))))
+	app.Use(Middleware(sessionName, NewCookieStore(keyPair)))
+	app.Use(func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		session := FromContext(r.Context())
+		session["foo"] = "bar"
+
+		rw.WriteHeader(http.StatusNoContent)
+	})
 
 	rec := httptest.NewRecorder()
 	r, err := http.NewRequest("GET", "/", nil)
@@ -22,23 +31,24 @@ func TestMiddleware(t *testing.T) {
 	}
 	app.ServeHTTP(rec, r)
 
-	if !strings.HasPrefix(rec.Header().Get("Set-Cookie"), "testsid=") {
-		t.Error("cookie not set")
+	testCookie = rec.Header().Get("Set-Cookie")
+	if !strings.HasPrefix(testCookie, sessionName+"=") {
+		t.Fatal("Cookie not set")
 	}
 }
 
 func TestDecode(t *testing.T) {
 	app := web.New()
-	app.Use(Middleware("testsid", NewCookieStore([]byte("key"))))
-	app.Use(func(ctx web.Context, next web.Next) {
-		session := FromContext(ctx)
+	app.Use(Middleware("testsid", NewCookieStore(keyPair)))
+	app.Use(func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		session := FromContext(r.Context())
 		foo, ok := session["foo"]
 
 		if !ok || foo != "bar" {
-			t.Error("session read error")
+			t.Errorf(`expected foo="bar", got "%v"`, foo)
 		}
 
-		ctx.WriteHeader(http.StatusNoContent)
+		rw.WriteHeader(http.StatusNoContent)
 	})
 
 	rec := httptest.NewRecorder()

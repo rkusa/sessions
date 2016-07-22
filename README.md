@@ -1,9 +1,9 @@
 # sessions
 
-A sessions middleware for [rkgo/web](https://github.com/rkgo/web)
+A sessions middleware that works well (but not exclusively) with [rkusa/web](https://github.com/rkusa/web).
 
-[![Build Status][drone]](https://ci.rkusa.st/rkgo/sessions)
-[![GoDoc][godoc]](https://godoc.org/github.com/rkgo/sessions)
+[![Build Status][travis]](https://travis-ci.org/rkusa/sessions)
+[![GoDoc][godoc]](https://godoc.org/github.com/rkusa/sessions)
 
 ### Example
 
@@ -21,5 +21,5 @@ sessions := sessions.FromContext(ctx)
 fmt.Println(sessions["foo"])
 ```
 
-[drone]: http://ci.rkusa.st/api/badges/rkgo/sessions/status.svg?style=flat-square
-[godoc]: http://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square
+[travis]: https://img.shields.io/travis/rkusa/sessions.svg
+[godoc]: http://img.shields.io/badge/godoc-reference-blue.svg

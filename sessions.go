@@ -1,23 +1,26 @@
-// A sessions middleware for [rkgo/web](https://github.com/rkgo/web)
+// Package sessions provides a sessions middleware that works well (but not
+// exclusively) with [rkusa/web](https://github.com/rkusa/web).
 //
 //  app := app.New()
-//  app.Use(sessions.Middleware("testsid", NewCookieStore([]byte("key"))))
+//  app.Use(sessions.Middleware("testsid", sessions.NewCookieStore([]byte("your-secret-key"))))
+//
+//  add this
+//
 //
 // Read session
 //
-//  sessions := sessions.FromContext(ctx)
+//  sessions := sessions.FromContext(r.Context())
 //  fmt.Println(sessions["foo"])
 //
 package sessions
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	gorilla "github.com/gorilla/context"
 	"github.com/gorilla/sessions"
-	"github.com/rkgo/web"
-	"golang.org/x/net/context"
 )
 
 type key int
@@ -41,18 +44,15 @@ func NewCookieStore(keyPairs ...[]byte) CookieStore {
 	return store
 }
 
-// Middleware returns a [rkgo/web](https://github.com/rkgo/web) compatible
-// sessions middleware.
-func Middleware(name string, store Store) web.Middleware {
-	return func(ctx web.Context, next web.Next) {
-		session, _ := store.Get(ctx.Req(), name)
-		defer gorilla.Clear(ctx.Req())
+// Middleware returns a middleware.
+func Middleware(name string, store Store) func(http.ResponseWriter, *http.Request, http.HandlerFunc) {
+	return func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		session, _ := store.Get(r, name)
+		defer gorilla.Clear(r)
 
-		ctx.Before(func(rw http.ResponseWriter) {
-			session.Save(ctx.Req(), rw)
-		})
+		next(rw, r.WithContext(context.WithValue(r.Context(), sessionKey, session)))
 
-		next(ctx.WithValue(sessionKey, session))
+		session.Save(r, rw)
 	}
 }
 
