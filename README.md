@@ -21,5 +21,9 @@ sessions := sessions.FromContext(ctx)
 fmt.Println(sessions["foo"])
 ```
 
+## License
+
+[MIT](LICENSE)
+
 [travis]: https://img.shields.io/travis/rkusa/sessions.svg
 [godoc]: http://img.shields.io/badge/godoc-reference-blue.svg
